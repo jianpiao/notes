@@ -1,30 +1,22 @@
 # notes
 
-> A Vue.js project
+> vue 2.0 兼容pc和手机的记事本
 
-## Build Setup
+## 配置和查看
 
 ``` bash
-# install dependencies
+  下载zip安装包之后=>
+# 安装依赖
 npm install
 
-# serve with hot reload at localhost:8080
+# 默认加载到本地端口号 localhost:8080
 npm run dev
 
-# build for production with minification
+# 进行打包 方便与发行成app
 npm run build
 
-# build for production and view the bundle analyzer report
-npm run build --report
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
 ```
+
+欢迎start
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
