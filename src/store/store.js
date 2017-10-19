@@ -17,8 +17,14 @@ const LocalEvent = function(item){      // 定义一个本地存储的构造函�
 }
 const local = new LocalEvent('Notes'); // 创建一个本地存储的实例
 
-
-
+//数组排序
+ function compare(time){
+          return function(a,b){
+              var value1 = a[time];
+              var value2 = b[time];
+              return value2 - value1;
+            }
+          }
 
 
 //需要维护的状态
@@ -28,13 +34,19 @@ const state = local.get() || {
         activeNote:当前正在编辑的note项
     */
     notes:[],
+    deleteNotes:[],
     activeNote:{},
     value:{},
     event: [],
     count: 0,
-    backgroundColor:{},
     favorite:false,
-    time:{}
+    time:{},
+    fontSize:{},
+    num:14,
+    backgroundColor:{},
+    back:{},
+    tag:{},
+    delNote: {},
 }
 
 const mutations = {
@@ -42,8 +54,11 @@ const mutations = {
     ADDEVENT(state){ 
         local.set(state);
     } ,
+
     //添加笔记
     ADD_NOTE(state){
+        var time = new Date().getTime()
+        // alert(time)
         const newNote  = {
             /*
                 text:默认文字内容
@@ -52,63 +67,143 @@ const mutations = {
             value:"",
             text:"",
             favorite:false,
-            time: Date()
+            time: Date(),
+            tag:time
         }
         state.count++;
-        console.log(state.count)
         state.notes.push(newNote)
         state.activeNote = newNote
         state.value = newNote
+        state.notes.sort(compare('tag'))
     },
+
     //编辑笔记
     EDIT_NOTE(state,text){
         state.activeNote.text = text
+        for (var i = 0; i < state.notes.length ; i++){
+            if (state.notes[i] == state.activeNote){
+                let newTag = new Date().getTime()
+                state.notes[i].time = Date()
+                state.notes[i].tag  =  newTag
+                state.notes.sort(compare('tag'))
+            }
+        }
     },
+
     EDIT_VALUE(state,value){
         state.value.value = value
+        for (var i = 0; i < state.notes.length ; i++){
+            if (state.notes[i] == state.activeNote){
+                let newTag = new Date().getTime()
+                state.notes[i].time = Date()
+                state.notes[i].tag  =  newTag
+                state.notes.sort(compare('tag'))
+            }
+        }
     },
+
     // 设置当前激活的笔记 颜色为激活色
     SET_ACTIVE_NOTE(state,note){
-       state.activeNote = note
+        state.activeNote = note
     },
+
     SET_VALUE(state,value){
-        state.value = value
+       state.value = value
     },
+
     // 切换笔记的收藏与取消收藏
     TOGGLE_FAVORITE(state){
         if(state.notes.length > 0){
             state.value.favorite = !state.value.favorite
-            // local.set(state.value.favorite)
+            local.set(state)
         }else{
             state.value.favorite = false
         }
     },
+
     //删除笔记
     DELETE_NOTE(state){
         for (var i = 0; i < state.notes.length ; i++){
             if (state.notes[i] == state.activeNote){
+                var delNote = state.notes[i]
                 state.notes.splice(i, 1)
             }
         }
         //如果没有activeNote就从第0个开始删除
         state.notes[-1] = state.activeNote 
+        state.value = ""
+        state.activeNote = ""
+        local.set(state)
     },
+
     //全部删除
     DELETE_ALL(state){
         if(state.notes.length != 0){
             var c = confirm("全部删除后无法恢复，是否要删除")
             if(c == true){
-                for(var i = 0; i < state.notes.length; i++){
-                    state.notes[i] = state.activeNote
-                    state.notes.splice(i , state.notes.length)
-                    local.remove(state)
-                }
+                // for(var i = 0; i < state.notes.length; i++){
+                //     state.notes.splice(i , state.notes.length)
+                //     local.remove(state)
+                // }
+                local.remove(state)
             }
         }
+        local.remove(state)
     },
-    BACK_COLOR(state){
-        state.backgroundColor = localStorage.getItem("color")
-    }
+
+    //字体大小
+    INCREASE(state){
+        state.num++;
+        let size = state.num + 'px'
+        state.fontSize = size
+        local.set(state)
+    },
+
+    REDUCED(state){
+        if(state.num > 12){
+            state.num--;
+            let size = state.num + 'px'
+            state.fontSize = size
+            local.set(state)
+        }
+    },
+
+    //添加时间
+    TIME(state){
+        state.time = Date()
+    },
+
+    //背景颜色
+    BACKGROUND_COLOR1(state){
+        state.backgroundColor = "#F5F5F5"
+        local.set(state)
+    },
+
+    BACKGROUND_COLOR2(state){
+        state.backgroundColor = "#fedcbd"
+        local.set(state)
+    },
+
+    BACKGROUND_COLOR3(state){
+        state.backgroundColor = "#cde6c7"
+        local.set(state)
+    },
+
+    BACKGROUND_COLOR4(state){
+        state.backgroundColor = "#E0EEE0"
+        local.set(state) 
+    },
+
+    BACKGROUND_COLOR5(state){
+        state.backgroundColor = "#30414a" 
+        local.set(state)
+    },
+
+    BACKGROUND_COLOR6(state){
+        state.backgroundColor = "#2E2E2E"
+        state.back = 'rgba(0,0,0,.2)'
+        local.set(state)
+    },
 }
 
 
@@ -147,16 +242,10 @@ const actions = {
 
     updateActiveNote({commit},note){
         commit('SET_ACTIVE_NOTE',note)
-        if(state.activeNote == ""){
-           commit("ADD_NOTE")
-        }
     },
 
     updateValue({commit},value){
         commit('SET_VALUE',value)
-        if(state.value == ""){
-           commit("ADD_NOTE")
-        }
     },
 
     toggleFavorite({commit}){
@@ -165,18 +254,51 @@ const actions = {
 
     deleteNote({commit}){
         commit('DELETE_NOTE')
-        local.set(state);
     },
 
     deleteAll({commit}){
         commit('DELETE_ALL')
     },
+
     saveNoet({commit}){
         commit('ADDEVENT')
     },
-    backgroundColor({commit}){
-        commit('BACK_COLOR')
-        local.set(state)
+
+    increase({commit}){
+        commit('INCREASE')
+    },
+
+
+    reduced({commit}){
+        commit('REDUCED')
+    },
+
+    updateTime({commit}){
+        commit('TIME')
+    },
+
+    backgroundColor1({commit}){
+        commit('BACKGROUND_COLOR1')
+    },
+
+    backgroundColor2({commit}){
+        commit('BACKGROUND_COLOR2')
+    },
+
+    backgroundColor3({commit}){
+        commit('BACKGROUND_COLOR3')
+    },
+
+    backgroundColor4({commit}){
+        commit('BACKGROUND_COLOR4')
+    },
+
+    backgroundColor5({commit}){
+        commit('BACKGROUND_COLOR5')
+    },
+
+    backgroundColor6({commit}){
+        commit('BACKGROUND_COLOR6')
     },
 }
 
@@ -187,9 +309,12 @@ const getters = {
         （可以认为是 store 的计算属性）。
         就像计算属性一样，getters的返回值会根据它的依赖被缓存起来，
         且只有当它的依赖值发生了改变才会被重新计算。
-        所以这里的计算放到了Editor.vue的cumputer里面
+        所以这里的计算放到了需要计算值的组件的cumputer里面
+        例如:fontSize每次触发会在mutation中计算,
+             而getters就把最后算好的值放到了组件中显示
 
         Getters 接受 state 作为其第一个参数
+        （这是es6语法 ↓）
         state => state.notes为箭头函数等价于：
         function (state){
             return state.notes 
@@ -198,6 +323,12 @@ const getters = {
   notes: state => state.notes,
   value:state => state.value,
   activeNote:state => state.activeNote,
+  deleteNotes:state => state.deleteNotes,
+  fontSize:state => state.fontSize,
+  time:state => state.time,
+  backgroundColor:state => state.backgroundColor,
+  back:state => state.back,
+  delNote:state => state.delNote
 }
 
 

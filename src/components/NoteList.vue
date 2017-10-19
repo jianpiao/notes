@@ -1,15 +1,13 @@
 <template>
-  <div id="notes-list">
+  <div id="notes-list" >
     <div id="list-header">
       <h3>Notes</h3>
       <div class="btn-group btn-group-justified" role="group">
-        <!-- All Notes button -->
         <div class="btn-group" role="group">
           <button @click="show='all'" type="button" class="btn btn-default" :class="{active:show=='all'}">
             All Notes
           </button>
         </div>
-        <!-- Favorites Button -->
         <div class="btn-group" role="group">
           <button @click="show='favorites'" type="button" class="btn btn-default" :class="{active:show=='favorites'}">
             Favorites
@@ -18,17 +16,17 @@
       </div>
     </div>
     <!-- render notes in a list -->
-    <div class="container" >
+    <div class="container">
       <div class="list-group">
-        <p v-for="item in notes" class="list-group-item" :class="{active:value == item}"  @click="updateActiveNote(item);updateValue(item)" href="#">
+        <p v-for="item in notes" class="list-group-item"  :class="{active:value == item}"  @click="updateActiveNote(item);updateValue(item)">
           <span class="note_time">{{item.time | date}}</span>
-          <!-- <i class="glyphicon glyphicon-trash deleteNote" @click="deleteNote"></i> -->
-           <router-link to="/notelist/editor" style="color:#000;">
-             <h4 class="list-group-item-heading">
-                {{item.text}} -&nbsp;
-                {{item.value}}
-             </h4>
-           </router-link>
+            <!-- <i class="glyphicon glyphicon-remove deleteNote"  @click="deleteNote" :style="{display:delNote}"></i> -->
+              <router-link to="/notelist/editor" style="color:#000;">
+                <h4 class="list-group-item-heading">
+                    {{item.text}} -&nbsp;
+                    {{item.value}}
+                </h4>
+              </router-link>
         </p>
       </div>
     </div>
@@ -46,17 +44,26 @@ export default {
   },
   computed:mapState({
       notes(){
-          if(this.show=='all'){
-              return this.$store.getters.notes
-          }else if(this.show=='favorites'){
-              return this.$store.getters.notes.filter(note=>note.favorite)
-          }
+        if(this.show=='all'){
+            return this.$store.getters.notes
+        }else if(this.show=='favorites'){
+            return this.$store.getters.notes.filter(note=>note.favorite)
+        }
       },
       activeNote(){
             return this.$store.getters.activeNote
       },
       value(){
             return this.$store.getters.value
+      },
+      time(){
+            return this.$store.getters.time.filter(note=>note.time);
+      },
+      back(){
+            return this.$store.getters.back
+      },
+      delNote(){
+            return this.$store.getters.delNote
       },
   }),
   methods:{
@@ -68,7 +75,7 @@ export default {
       },
       deleteNote(){
           this.$store.dispatch('deleteNote')
-      },
+      }
   },
   filters:{
       date(time){
@@ -77,9 +84,9 @@ export default {
           var dayNum = "";
           var getTime = (newDate.getTime() - oldDate.getTime())/1000;
 
-          if(getTime < 60*5){
+          if(getTime < 60*2){
               dayNum = "刚刚";
-          }else if(getTime >= 60*5 && getTime < 60*60){
+          }else if(getTime >= 60*2 && getTime < 60*60){
               dayNum = parseInt(getTime / 60) + "分钟前";
           }else if(getTime >= 3600 && getTime < 3600*24){
               dayNum = parseInt(getTime / 3600) + "小时前";
@@ -91,14 +98,21 @@ export default {
               dayNum = parseInt(getTime / 3600 / 24 / 30 / 12 ) + "年前";  
           }
 
+          function checkTime(time){
+             if(time < 10){
+                time = "0" + time
+             }
+             return time
+          }
+
           let year   = oldDate.getFullYear();
           let month  = oldDate.getMonth()+1;
           let day    = oldDate.getDate();
           let hour   = oldDate.getHours(); 
           let minute = oldDate.getMinutes(); 
           let second = oldDate.getSeconds(); 
-          return dayNum+" "+year+"-"+month+"-"+day+" "+hour+":"+minute+":"+second;
-      }
+          return dayNum+" "+year+"-"+month+"-"+day+" "+checkTime(hour)+":"+checkTime(minute)+":"+checkTime(second);
+      },
   }
 }
 </script>
@@ -145,13 +159,16 @@ export default {
 }
 
 .list-group-item.active, 
-.list-group-item.active:focus, 
-.list-group-item.active:hover{
+.list-group-item.active:focus , 
+.list-group-item.active:hover {
   background-color: #E8E8E8;
   box-shadow: 0 0 3px rgba(0,0,0,.1), 0 0 3px rgba(0,0,0,.1) inset; 
 }
 
-.list-group-item a:hover{
+.list-group-item a:hover,
+.list-group a:hover,
+.list-group a:focus,
+.list-group{
   text-decoration: none;
 }
 
@@ -165,22 +182,31 @@ export default {
 
 .note_time{
   font-size: 12px;
-  opacity: .7;
-  color: #987165;
+  opacity: .5;
+  color: #987111;
+  text-decoration: none;
 }
 
 .deleteNote{
+  margin-top: 6%;
   float: right;
   right: -35px;
   font-size: 17px;
   color: #767676;
-  z-index: 100;
   opacity: .7;
+  display: none;
+  z-index: 100;
 }
 
-.btn-group:active{
-  outline: none;
+.btn:focus,
+.btn:active:focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active,focus,
+.btn.active.focus{
+ outline: 0;
 }
+
 
 @media only screen and (min-width: 600px){
   #notes-list {

@@ -37,6 +37,13 @@ export default {
 </script>
 
 <style>
+*{
+  padding: 0;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
+  outline: none;
+}
 html, #app {
   height: 100%;
 }
