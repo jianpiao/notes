@@ -13,7 +13,7 @@
         <i  class="glyphicon glyphicon-time"></i>
     </router-link>
     <!-- <router-link to="/notelist" :style="{display:backHome}"> -->
-        <i @click="backhome" :style="{display:backHome}" class="glyphicon_color glyphicon glyphicon-home"></i>
+        <i @click="backhome"  :style="{display:backHome}" class="glyphicon_color glyphicon glyphicon-home"></i>
     <!-- </router-link> -->
         <i @click="increase" class="glyphicon glyphicon-triangle-top"    :style="{display:fontsize}"></i>
         <i @click="reduced"  class="glyphicon glyphicon-triangle-bottom" :style="{display:fontsize}"></i>

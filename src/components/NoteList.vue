@@ -64,7 +64,7 @@ export default {
       },
       delNote(){
             return this.$store.getters.delNote
-      },
+      }
   }),
   methods:{
       updateActiveNote(note){
