@@ -126,8 +126,8 @@ const mutations = {
 
   //  删除笔记
   DELETE_NOTE (state) {
-    for (let i of state.notes) {
-      if (i === state.activeNote) {
+    for (let i in state.notes) {
+      if (state.notes[i] === state.activeNote) {
         state.deleteNotes.push(i)
         state.deleteNotes.sort(compare('tag'))
         state.notes.splice(i, 1)
